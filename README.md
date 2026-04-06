@@ -1,61 +1,129 @@
-# Network Connectivity Tool
+# Network Connectivity for Fintech
 
-## Project Overview
-The Network Connectivity Tool is a web application designed to help fintech professionals understand key network connectivity concepts such as Local Area Networks (LAN), Wide Area Networks (WAN), and the TCP/IP protocol suite. The application also provides troubleshooting techniques to assist users in diagnosing and resolving common network issues.
+> An interactive learning platform for financial technology professionals — teaching LAN, WAN, TCP/IP, and FIX protocol through real-world fintech scenarios.
+
+**Live App:** https://network-connectivity-fintech.onrender.com  
+**GitHub:** https://github.com/ken-jiang-claude/network-connectivity-fintech  
+**Owner:** Ken Jiang | **Version:** 1.0 | **Status:** Active
+
+---
+
+## What Is This?
+
+Fintech professionals — FIX connectivity engineers, algo traders, and operations staff — need to understand how network connectivity underpins every trade. This platform teaches core concepts through the lens of FIX protocol, with interactive tools that mirror real trading system behaviour.
+
+---
 
 ## Features
-- **Educational Content**: Learn about LAN, WAN, and TCP/IP concepts with clear explanations and examples.
-- **Troubleshooting Techniques**: Access diagnostic tools and methods to guide users through common network troubleshooting scenarios.
-- **User-Friendly Interface**: An intuitive web interface that makes learning and troubleshooting easy and accessible.
+
+| Tab | What You Learn |
+|---|---|
+| **Concepts** | LAN, WAN, TCP/IP, and FIX Session — each with fintech context, real examples, and key specs. Click any card for a deep-dive. |
+| **OSI & FIX** | All 7 OSI layers mapped to FIX and trading systems. Step through the FIX session lifecycle (Logon → Order → Fill → Heartbeat → Logout) with TCP analogies. |
+| **FIX Simulator** | Load sample FIX messages (Logon, New Order, Execution Report, Heartbeat, Logout) or paste any raw FIX string to parse it tag-by-tag. |
+| **Troubleshoot** | 5 real fintech scenarios — FIX session drops, latency spikes, sequence gaps, no connectivity, missing market data — each with symptoms, causes, and step-by-step resolution. Plus a live ping tool. |
+| **Quiz** | 5 scenario-based questions testing practical understanding of fintech networking. Immediate feedback with explanations. |
+
+---
+
+## Screenshots
+
+### Concepts Tab
+Learn LAN, WAN, TCP/IP, and FIX Session with fintech-specific context — trading floor LANs, transatlantic WAN latency, and FIX over TCP.
+
+### FIX Simulator
+Parse any FIX `tag=value` message into a structured field breakdown:
+```
+8   BeginString  = FIX.4.4
+35  MsgType      = NewOrderSingle
+49  SenderCompID = BROKER1
+55  Symbol       = AAPL
+54  Side         = 1 (Buy)
+38  OrderQty     = 100
+44  Price        = 185.50
+```
+
+### Troubleshoot Tab
+Select a real fintech scenario and get a structured diagnosis — with OSI layer, relevant FIX tags, symptoms, causes, and numbered resolution steps.
+
+---
 
 ## Tech Stack
-- **Language**: Python
-- **Web Framework**: Flask
-- **Frontend**: HTML, CSS, JavaScript
-- **Static Files**: CSS for styling and JavaScript for interactivity
 
-## File Structure
-```
-network-connectivity-tool
-├── src
-│   ├── app.py               # Entry point of the application
-│   ├── network.py           # Network connectivity concepts
-│   ├── troubleshoot.py       # Troubleshooting techniques
-│   ├── templates
-│   │   └── index.html       # Main HTML template
-│   └── static
-│       ├── css
-│       │   └── styles.css    # CSS styles
-│       └── js
-│           └── main.js       # JavaScript code
-├── requirements.txt          # Project dependencies
-└── README.md                 # Project documentation
+| Layer | Technology |
+|---|---|
+| Language | Python 3.12 |
+| Web Framework | Flask 3.0 |
+| Production Server | Gunicorn |
+| Frontend | HTML5, CSS3, Vanilla JS |
+| Hosting | Render.com (auto-deploy from GitHub) |
+| Version Control | GitHub |
+
+---
+
+## API Reference
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/concepts` | GET | All network concepts (LAN, WAN, TCP/IP, FIX Session) |
+| `/api/concepts/<name>` | GET | Single concept by name |
+| `/api/fix/sample/<type>` | GET | Sample FIX message (A, D, 8, 0, 5) |
+| `/api/fix/parse` | POST | Parse a raw FIX tag=value string |
+| `/api/diagnose` | POST | Diagnose a network issue from text description |
+| `/api/ping` | POST | Ping a host for Layer 3 connectivity check |
+| `/api/quiz` | GET | Retrieve the 5 quiz questions |
+
+---
+
+## Running Locally
+
+**1. Clone the repo**
+```bash
+git clone https://github.com/ken-jiang-claude/network-connectivity-fintech.git
+cd network-connectivity-fintech
 ```
 
-## Installation
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   cd network-connectivity-tool
-   ```
-2. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-
-## Running the Application
-To run the application, execute the following command:
+**2. Install dependencies**
+```bash
+pip install -r requirements.txt
 ```
+
+**3. Run the app**
+```bash
 python src/app.py
 ```
-Then, open your web browser and navigate to `http://localhost:5000` to access the tool.
 
-## Usage
-- Navigate through the application to learn about network concepts and access troubleshooting techniques.
-- Utilize the provided tools to diagnose and resolve network issues effectively.
+**4. Open in browser**
+```
+http://localhost:5000
+```
 
-## Contributing
-Contributions are welcome! Please feel free to submit a pull request or open an issue for any suggestions or improvements.
+---
+
+## Project Documentation
+
+| Document | Description |
+|---|---|
+| [PROJECT_MANAGEMENT.md](docs/PROJECT_MANAGEMENT.md) | Full PM doc — Business Justification, ROI, RACI, RICE, Milestones, Testing Plan, SDLC, Gantt Chart |
+| [network-connectivity-fintech-intro.pptx](docs/network-connectivity-fintech-intro.pptx) | Bloomberg terminal-themed intro deck (8 slides) |
+
+---
+
+## Roadmap
+
+| Version | Target | Features |
+|---|---|---|
+| **v1.0** ✅ | Apr 2026 | Core platform — Concepts, OSI Explorer, FIX Simulator, Troubleshoot, Quiz |
+| **v1.1** | Aug 2026 | Live FIX sandbox (connect to real QuickFIX/J test acceptor) |
+| **v1.2** | Oct 2026 | Market data feed simulator (UDP multicast, FAST protocol) |
+| **v2.0** | Dec 2026 | Multi-user mode, progress tracking, certification badge |
+
+---
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+
+MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+*Network Connectivity for Fintech | v1.0 | April 2026 | Ken Jiang*
