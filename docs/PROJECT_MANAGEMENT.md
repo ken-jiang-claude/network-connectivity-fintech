@@ -20,10 +20,15 @@
 8. [Testing Plan](#8-testing-plan)
 9. [Software SDLC](#9-software-sdlc)
 10. [Gantt Chart](#10-gantt-chart)
+11. [Assumptions & Dependencies](#11-assumptions--dependencies)
+12. [Version History](#12-version-history)
 
 ---
 
 ## 1. Business Justification
+
+### Firm Context
+This platform is designed for a **mid-size algo trading desk** (20–50 engineers) operating across co-located LAN infrastructure and transatlantic WAN links to exchanges in New York, London, and Chicago. The desk runs FIX 4.4 sessions to 5+ execution venues and processes ~$2B in daily order flow.
 
 ### Problem Statement
 Network connectivity is the invisible backbone of every financial transaction. Fintech professionals — including FIX connectivity engineers, algo traders, and operations staff — frequently encounter challenges such as:
@@ -132,14 +137,14 @@ ROI = ($12,600 - $126) / $126 × 100 = 9,900%
 
 ### How to Measure ROI
 
-| Metric | Measurement Method | Target |
-|---|---|---|
-| Mean Time to Resolve (MTTR) FIX incidents | Track ticket open/close timestamps | Reduce by 70% within 3 months |
-| Escalation rate to senior engineers | Count escalation tickets per month | Reduce by 50% within 3 months |
-| Onboarding time for new hires | Time to independently handle first FIX network issue | Reduce from 10 weeks to 3 weeks |
-| User adoption | Monthly active users of the platform | 80% of FIX team within 2 months |
-| Quiz average score | Tracked per session in quiz module | ≥ 70% validates effective learning |
-| Client SLA compliance | Client-reported resolution times | Reduce average from 3 hrs to 1 hr |
+| Metric | Measurement Method | Data Source | Target |
+|---|---|---|---|
+| Mean Time to Resolve (MTTR) FIX incidents | Track ticket open/close timestamps | JIRA / incident tracker | Reduce by 70% within 3 months |
+| Escalation rate to senior engineers | Count escalation tickets tagged "network/FIX" per month | JIRA | Reduce by 50% within 3 months |
+| Onboarding time for new hires | Time from start date to first independent FIX network issue resolution | HR / manager survey | Reduce from 10 weeks to 3 weeks |
+| User adoption | Monthly active users of the platform | Render.com access logs | 80% of FIX team within 2 months |
+| Quiz average score | Tracked per quiz session in `/api/quiz` responses | Platform quiz data | ≥ 70% validates effective learning |
+| Client SLA compliance | Client-reported FIX connectivity resolution times | Client feedback / SLA reports | Reduce average from 3 hrs to 1 hr |
 
 ### Payback Period
 At ~$126/year cost and $12,600/year savings, the platform pays for itself in **less than 4 days** of use.
@@ -406,6 +411,41 @@ Sprint 4 — v2.0 (Oct–Dec 2026)
 | `POST /api/ping` | Rejects invalid host chars; accepts valid hostname | pytest + Flask test client |
 | `GET /api/quiz` | Returns 5 questions with correct structure | pytest + Flask test client |
 
+**Example pytest stubs:**
+```python
+# tests/test_api.py
+import pytest
+from src.app import app
+
+@pytest.fixture
+def client():
+    app.config["TESTING"] = True
+    with app.test_client() as c:
+        yield c
+
+def test_get_concepts_returns_all_four(client):
+    res = client.get("/api/concepts")
+    data = res.get_json()
+    assert res.status_code == 200
+    assert all(k in data for k in ["LAN", "WAN", "TCP_IP", "FIX_SESSION"])
+
+def test_fix_parse_new_order(client):
+    msg = "8=FIX.4.4|35=D|49=BROKER1|56=EXCHANGE1|55=AAPL|54=1|38=100|10=042|"
+    res = client.post("/api/fix/parse", json={"message": msg})
+    data = res.get_json()
+    assert "35" in data
+    assert data["35"]["value"] == "NewOrderSingle"
+
+def test_ping_rejects_injection(client):
+    res = client.post("/api/ping", json={"host": "8.8.8.8; rm -rf /"})
+    assert res.status_code == 400
+
+def test_diagnose_session_drop(client):
+    res = client.post("/api/diagnose", json={"description": "FIX session keeps disconnecting"})
+    data = res.get_json()
+    assert "heartbeat" in data["title"].lower() or "disconnect" in data["title"].lower()
+```
+
 #### Integration Testing
 | Test Case | Steps | Expected Result |
 |---|---|---|
@@ -599,4 +639,41 @@ gantt
 
 ---
 
-*Document version 1.0 | April 2026 | Ken Jiang*
+---
+
+## 11. Assumptions & Dependencies
+
+### Assumptions
+
+| ID | Assumption | Impact if Wrong | Status |
+|---|---|---|:---:|
+| A01 | Users have a modern browser (Chrome/Edge) | UI may break on older browsers | ✅ Valid |
+| A02 | Render.com free tier is sufficient for demo and early adoption | May need to upgrade to paid tier ($7/mo) | ✅ Valid |
+| A03 | The target firm runs ~8 FIX network incidents per month (basis of ROI) | ROI figures would need recalculation | 🔄 To validate |
+| A04 | FIX 4.4 is the primary protocol version in use | Content may need updating for FIX 4.2 or 5.0 SP2 users | 🔄 To validate |
+| A05 | Users are comfortable using a public browser-based tool for learning | Sensitive network config data must not be entered into the platform | ✅ Valid |
+| A06 | Gunicorn + Render.com can handle up to 5 concurrent users on free tier | May need horizontal scaling for team-wide rollout | ✅ Valid |
+
+### Dependencies
+
+| ID | Dependency | Type | Status | Risk if Unavailable |
+|---|---|---|:---:|---|
+| D01 | Render.com hosting | External | ✅ Active | App offline; no public URL |
+| D02 | GitHub repository (`ken-jiang-claude/network-connectivity-fintech`) | External | ✅ Active | No version control or auto-deploy |
+| D03 | Python 3.12 + Flask 3.0 + Gunicorn | Internal | ✅ Installed | Local development and production server unavailable |
+| D04 | FIX Protocol specification (FIX 4.4) | External reference | ✅ Active | Content accuracy of FIX simulator and scenarios unverifiable |
+| D05 | QuickFIX/J (for v1.1 Live FIX Sandbox) | External | 🔄 Planned | v1.1 feature blocked until QuickFIX/J test acceptor is deployed |
+| D06 | Poppler / LibreOffice (for PPTX generation) | Internal tooling | ✅ Installed | Bloomberg deck cannot be regenerated |
+
+---
+
+## 12. Version History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 1.0 | Apr 2026 | Ken Jiang | Initial release — all 10 sections, Mermaid Gantt, RACI, RICE |
+| 1.1 | Apr 2026 | Ken Jiang | Added firm context, pytest examples, Assumptions & Dependencies, Version History; strengthened ROI measurement table |
+
+---
+
+*Document version 1.1 | April 2026 | Ken Jiang*
