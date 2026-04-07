@@ -89,7 +89,10 @@
 
                 <h3>Or Paste a FIX Message</h3>
                 <textarea id="fix-input" rows="5" placeholder="8=FIX.4.4|9=120|35=D|49=BROKER1|56=EXCHANGE1|34=2|52=20240101-09:00:01|11=ORD001|55=AAPL|54=1|38=100|40=2|44=185.50|10=042|"></textarea>
-                <button class="btn btn-primary" id="parse-btn">Parse Message</button>
+                <div style="display:flex;gap:8px;margin-top:0">
+                    <button class="btn btn-primary" id="parse-btn">Parse Message</button>
+                    <button class="btn btn-secondary" id="clear-fix-btn" onclick="document.getElementById('fix-input').value=''">Clear</button>
+                </div>
             </div>
 
             <div class="sim-right">
